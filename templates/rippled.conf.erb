@@ -15,12 +15,5 @@ setgid <%= @group %>
 
 limit nofile 8192 8192
 
-# if stirage is ephemeral, proper permissions might be lost
-# pre-start script
-# sudo chown -R <%= @user %> <%= @rock_db_folder %>
-# sudo chown -R <%= @user %> <%= @operational_db_folder %>
-# sudo chown -R <%= @user %> <%= @debug_logfile_path %>
-# end script
-
 exec <%= @binary %> --net --conf <%= @config %> --fg
 respawn

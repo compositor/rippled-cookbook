@@ -2,7 +2,7 @@
 # Cookbook Name:: rippled
 # Recipe:: default
 #
-# Copyright (c) 2015 The Authors, All Rights Reserved.
+# Copyright (c) 2015 Dmitry Grigorenko, All Rights Reserved.
 
 include_recipe 'apt::default'
 
@@ -12,13 +12,11 @@ binary_folder = node['rippled']['binary_folder']
 
 group group do
   action :create
-  not_if "egrep -i \"^#{group}\" /etc/group >/dev/null"
 end
 
 user user do
   action :create
   gid group
-  not_if "egrep -i \"^#{user}\" /etc/passwd > /dev/null"
 end
 
 
