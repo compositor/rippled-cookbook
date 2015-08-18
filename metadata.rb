@@ -8,6 +8,4 @@ supports         'ubuntu', '>= 14.04'
 source_url 'https://github.com/compositor/rippled-cookbook'
 depends 'apt'
 issues_url 'https://github.com/compositor/rippled-cookbook/issues'
-long_description IO.read(File.join
-  (File.dirname(__FILE__), 'README.md')
-) 
+long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
