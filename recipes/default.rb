@@ -27,20 +27,19 @@ end
 # sudo apt-get -y install git scons ctags pkg-config protobuf-compiler libprotobuf-dev libssl-dev python-software-properties libboost1.57-all-dev nodejs; 
 # git clone https://github.com/ripple/rippled.git ; cd rippled/ ; git checkout master ; scons ; ./build/rippled --unittest ; sudo apt-get install npm; npm test
 
-
-# does not contain proper packages
-#apt_repository 'boost' do
-#  uri 'ppa:boost-latest/ppa'
-#  distribution node['lsb']['codename'] 
-#end
-
-# for boost
+# for boost. Rippled needs at least 1.57 and the latest at 'ppa:boost-latest/ppa' is 1.55
 apt_repository 'rippled' do
   uri 'http://mirrors.ripple.com/ubuntu/'
-  distribution 'trusty'
+  distribution node['lsb']['codename']
   components ['stable', 'contrib']
   key 'http://mirrors.ripple.com/mirrors.ripple.com.gpg.key'
   arch 'amd64'
+end
+
+# https://wiki.ripple.com/Ubuntu_build_instructions : Add more recent node repository
+apt_repository 'nodejs' do
+  uri 'ppa:chris-lea/node.js'
+  distribution node['lsb']['codename']
 end
 
 
@@ -51,8 +50,8 @@ end
 
 # The path maps to /tmp/kitchen/cache/rippled
 git Chef::Config[:file_cache_path] + '/rippled' do
-  repository node[:rippled][:git_repository]
-  revision node[:rippled][:git_revision]
+  repository node['rippled']['git_repository']
+  revision node['rippled']['git_revision']
   action :sync
 end
 
@@ -75,6 +74,7 @@ end
    code <<-EOH
      scons
      ./build/rippled --unittest 
+     npm test
      EOH
 #      npm test
 end
@@ -136,10 +136,12 @@ template node[:rippled][:config] do
   mode "0600"
   owner user
   group group
+  helper(:cfg) { node[:rippled][:config] },
   variables({
     :rock_db_folder => rock_db_folder,
     :operational_db_folder => operational_db_folder,
-    :debug_logfile_path => debug_logfile_path
+    :debug_logfile_path => debug_logfile_path,
+    :options        => node[:rippled]['options']
   })
 end
 
