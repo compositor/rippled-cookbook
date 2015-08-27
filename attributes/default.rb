@@ -93,6 +93,12 @@ default["rippled"]["config"]["ssl_verify"] = "1"
 
 
 ################################# Customization ###############################################
-default["rippled"]["config"]["node_db"] = nil #["path"] = "/var/lib/rippled/db/rocksdb2"
-default["rippled"]["config"]["database_path"] = "/var/lib/rippled/db2"
-default["rippled"]["rippled"]["config"]["debug_logfile"] = "/var/log/rippled2"
+#default["rippled"]["config"]["node_db"] = nil #["path"] = "/var/lib/rippled/db/rocksdb2"
+#default["rippled"]["config"]["database_path"] = "/var/lib/rippled/db2"
+#default["rippled"]["rippled"]["config"]["debug_logfile"] = "/var/log/rippled2"
+
+#TODO subfolder
+default["rippled"]["config_path"] = "/etc/rippled.cfg"
+#TODO true
+default['rippled']['run_tests'] = 'false'
+

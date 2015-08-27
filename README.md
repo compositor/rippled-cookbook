@@ -2,7 +2,7 @@
 	
 This cookbook compiles and installs a [Ripple](https://ripple.com) node (version 0.29.0). At the time of writing Ripple Labs does not provide a precompiled package for the most recent release, therefore the only installation method available is via sources.
 
-The cookbook generally follows instructions published at (https://wiki.ripple.com/Ubuntu_build_instructions) with the following improvements:
+The cookbook generally follows instructions published at [here](https://wiki.ripple.com/Ubuntu_build_instructions) with the following improvements:
 - allow to bind on privileged ports
 - use upstart for the daemon
 - set `limit nofile 8192 8192`
@@ -14,6 +14,7 @@ Please refer to rippled example configuration in sources for the full list of se
 
 All attributes within <code>node["rippled"]["config"]</code> will be converted to the content of `rippled.cfg`. A `key` from <code>node["rippled"]["config"][key]</code> becomes a section. A corresponding value might be a string (converts to a single string in config), an array (each element goes as a string in the section), a map (converts to a list of key=value strings), `nil` (to suppress default attributes, the section is not created then). It is clear from examples:
 
+An array
 ```ruby
 node["rippled"]["config"]["server"] = ["port_rpc_admin_local", "port_peer", "port_ws_admin_local"]
 ```
@@ -25,15 +26,17 @@ port_peer
 port_ws_admin_local
 ```
 
+A single value
 ```ruby
-default["rippled"]["config"]["node_size"] = "medium"
+node["rippled"]["config"]["node_size"] = "medium"
 ```
-becomes
+becomes a section
 ```
 [node_size]
 medium
 ```
 
+A map
 ```ruby
 node["rippled"]["config"]["port_peer"] = {
 	"port" => "51235",
@@ -41,7 +44,7 @@ node["rippled"]["config"]["port_peer"] = {
 	"protocol" => "peer"
 }
 ```
-becomes
+becomes a section
 ```
 [port_peer]
 port=51235
@@ -49,6 +52,7 @@ ip=0.0.0.0
 protocol=peer
 ```
 
+A `nil`
 ```ruby
 node["rippled"]["config"]["port_ws_admin_local"] = nil
 ```
@@ -57,7 +61,7 @@ removes `port_ws_admin_local` section
 Generally sections of `rippled.cfg` either contain a lines with values or with key-values. The only mix is `[server]` and putting a key-value there is syntax shugar and thus can be easily avoided. If you still need a mix, you can use the following construction
 
 ```ruby
-default["rippled"]["config"]["server"] = ["port_rpc_admin_local", "port_peer", "port_ws_admin_local", "port_ws_public", "ssl_key = /etc/ssl/private/server.key", "ssl_cert = /etc/ssl/certs/server.crt"]
+default["rippled"]["config"]["server"] = ["port_rpc_admin_local", "#port_ws_public", "ssl_key = /etc/ssl/private/server.key", "ssl_cert = /etc/ssl/certs/server.crt"]
 ```
 
 The default attributes merely repeat default rippled configuration from [souces](https://github.com/ripple/rippled/blob/master/doc/rippled-example.cfg). For better version tracking a copy of this example used to derive the attributes is saved in this cookbook at materials/rippled-example.cfg
@@ -161,14 +165,13 @@ All other attributes are listed below.
 Recipes
 =======
 
-## rippled::default
+* rippled::default
 Builds the rippled from source, configures, installs and runs.
 
 
 License and Author
 ==================
 
-|                      |                                             |
 |:---------------------|:--------------------------------------------|
 | **Author:**          | Dmitry Grigorenko (<grigorenko.d@gmail.com>)
 | **License:**         | Apache License, Version 2.0

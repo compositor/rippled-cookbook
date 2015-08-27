@@ -64,17 +64,6 @@ bash 'build_rippled' do
      EOH
 end
 
-bash 'test_rippled' do
-    cwd source_path
-    code <<-EOH
-      service rippled stop
-      ./build/rippled --unittest
-      npm install 
-      npm test
-      EOH
-    notifies :start, 'service[rippled]', :immediately
-    only_if { node["rippled"]["run_tests"] == 'true' } 
-end
 
 ruby_block "copy_bin" do
   block do
@@ -86,23 +75,23 @@ execute 'allow_to_bind_to_any_port' do
   command "setcap 'cap_net_bind_service=+ep' " + node['rippled']['binary_path']
 end
 
-########### Folder structure for data ##################
+########### Directories structure for data ##################
 
-folders_to_create = []
-if ["rippled"]["config"].attribute?("node_db") && ["rippled"]["config"]["node_db"].attribute?("path")
-    folders_to_create += node["rippled"]["config"]["node_db"]["path"]
+dirs_to_create = []
+if (not node["rippled"]["config"]["node_db"].nil?) and node["rippled"]["config"]["node_db"].attribute?("path")
+    dirs_to_create.push(node["rippled"]["config"]["node_db"]["path"])
 end
 
-if ["rippled"]["config"].attribute?("database_path")
-  folders_to_create += node["rippled"]["config"]["database_path"]
+if node["rippled"]["config"].attribute?("database_path")
+  dirs_to_create.push(node["rippled"]["config"]["database_path"])
 end
 
-if ["rippled"]["config"].attribute?("debug_logfile")
-  folders_to_create += File.dirname(node["rippled"]["config"]["debug_logfile"])
+if node["rippled"]["config"].attribute?("debug_logfile")
+  dirs_to_create.push(File.dirname(node["rippled"]["config"]["debug_logfile"]))
 end
 
-folders_to_create.each do |folder|
-  directory folder do
+dirs_to_create.each do |dir|
+  directory dir do
     owner user
     group group
     mode '0755'
@@ -112,11 +101,21 @@ folders_to_create.each do |folder|
 end
 
 # rippled config
-template node['rippled']['config_path'] do
-  source "rippled.cfg.erb"
-  mode "0600"
+
+config_dir = File.dirname(node['rippled']['config_path'])
+
+## TODO: the same trick for binary and other locations
+directory config_dir do
   owner user
   group group
+  recursive true
+end
+
+template node['rippled']['config_path'] do
+  source "rippled.cfg.erb"
+  mode "0755"
+#  owner user
+#  group group
   helper(:cfg) { node[:rippled][:config] }
   notifies :restart, 'service[rippled]', :delayed
 end
@@ -141,6 +140,19 @@ service node['rippled']['service_name'] do
  supports :status => true, :start => true, :stop => true, :restart => true, :fetch => true, :uptime => true, :startconfig => true, :command => true, :test => true, :clean => true
  action [:enable, :start]
 end
+
+#      service rippled stop
+bash 'test_rippled' do
+    cwd source_path
+    code <<-EOH
+      ./build/rippled --unittest
+      npm install 
+      npm test
+      EOH
+    notifies :start, 'service[rippled]', :immediately
+    only_if { node["rippled"]["run_tests"] == 'true' } 
+end
+
 
 # upstart script
 # template "/etc/init/rippled.conf" do
