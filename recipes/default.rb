@@ -4,11 +4,17 @@
 #
 # Copyright (c) 2015 Dmitry Grigorenko, All Rights Reserved.
 
+# At a high level follows these instructions
+# https://wiki.ripple.com/Rippled_build_instructions
+# https://wiki.ripple.com/Ubuntu_build_instructions
+# add-apt-repository -y ppa:boost-latest/ppa ; sudo apt-get update ; apt-get -y upgrade ; 
+# sudo apt-get -y install git scons ctags pkg-config protobuf-compiler libprotobuf-dev libssl-dev python-software-properties libboost1.57-all-dev nodejs; 
+# git clone https://github.com/ripple/rippled.git ; cd rippled/ ; git checkout master ; scons ; ./build/rippled --unittest ; sudo apt-get install npm; npm test
+
 include_recipe 'apt::default'
 
 user = node['rippled']['user']
 group = node['rippled']['group']
-binary_folder = node['rippled']['binary_folder']
 
 group group do
   action :create
@@ -16,16 +22,11 @@ end
 
 user user do
   action :create
+  comment 'rippled system user'
+  system true
+  shell '/bin/false' 
   gid group
 end
-
-
-# https://wiki.ripple.com/Rippled_build_instructions
-# https://wiki.ripple.com/Ubuntu_build_instructions
-
-# add-apt-repository -y ppa:boost-latest/ppa ; sudo apt-get update ; apt-get -y upgrade ; 
-# sudo apt-get -y install git scons ctags pkg-config protobuf-compiler libprotobuf-dev libssl-dev python-software-properties libboost1.57-all-dev nodejs; 
-# git clone https://github.com/ripple/rippled.git ; cd rippled/ ; git checkout master ; scons ; ./build/rippled --unittest ; sudo apt-get install npm; npm test
 
 # for boost. Rippled needs at least 1.57 and the latest at 'ppa:boost-latest/ppa' is 1.55
 apt_repository 'rippled' do
@@ -36,70 +37,71 @@ apt_repository 'rippled' do
   arch 'amd64'
 end
 
-# https://wiki.ripple.com/Ubuntu_build_instructions : Add more recent node repository
+# https://wiki.ripple.com/Ubuntu_build_instructions : Add more recent node repository (tests do not work without it)
 apt_repository 'nodejs' do
-  uri 'ppa:chris-lea/node.js'
-  distribution node['lsb']['codename']
+ uri 'ppa:chris-lea/node.js'
+ distribution node['lsb']['codename']
 end
-
 
 node['rippled']['packages'].each do |pkg|
   package pkg
 end
 
-
 # The path maps to /tmp/kitchen/cache/rippled
-git Chef::Config[:file_cache_path] + '/rippled' do
+source_path = Chef::Config[:file_cache_path] + '/rippled'
+
+git source_path do
   repository node['rippled']['git_repository']
   revision node['rippled']['git_revision']
   action :sync
 end
 
 ############## Build and configure ######################
-# npm test fails with 
-# oot@default-ubuntu-1404:/tmp/kitchen/cache/rippled# npm test
-
-# > rippled@0.0.1 test /tmp/kitchen/cache/rippled
-# > mocha test/websocket-test.js test/server-test.js test/*-test.{js,coffee}
-
-# /usr/bin/env: node: No such file or directory
-# npm ERR! weird error 127
-# npm WARN This failure might be due to the use of legacy binary "node"
-# npm WARN For further explanations, please read
-# /usr/share/doc/nodejs/README.Debian
-
-# npm ERR! not ok code 0
- bash 'install_rippled_build' do
-   cwd Chef::Config[:file_cache_path] + '/rippled'
+bash 'build_rippled' do
+   cwd source_path
    code <<-EOH
      scons
-     ./build/rippled --unittest 
-     npm test
      EOH
-#      npm test
 end
 
-# install binary
-# file node[:rippled][:binary] do
-#   owner user
-#   group group
-#   mode 0755
-#   content ::File.open(Chef::Config[:file_cache_path] + '/rippled/build/rippled').read
-#   action :create
-# end
+bash 'test_rippled' do
+    cwd source_path
+    code <<-EOH
+      service rippled stop
+      ./build/rippled --unittest
+      npm install 
+      npm test
+      EOH
+    notifies :start, 'service[rippled]', :immediately
+    only_if { node["rippled"]["run_tests"] == 'true' } 
+end
 
 ruby_block "copy_bin" do
   block do
-    FileUtils.cp Chef::Config[:file_cache_path] + '/rippled/build/rippled', node[:rippled][:binary]
+    FileUtils.cp source_path + '/build/rippled', node['rippled']['binary_path']
   end
 end
 
+execute 'allow_to_bind_to_any_port' do
+  command "setcap 'cap_net_bind_service=+ep' " + node['rippled']['binary_path']
+end
 
-rock_db_folder = node[:rippled][:rock_db_folder]
-operational_db_folder = node[:rippled][:operational_db_folder]
-debug_logfile_path = node[:rippled][:debug_logfile_folder] + '/debug.log'
+########### Folder structure for data ##################
 
-[rock_db_folder, operational_db_folder, node[:rippled][:debug_logfile_folder]].each do |folder|
+folders_to_create = []
+if ["rippled"]["config"].attribute?("node_db") && ["rippled"]["config"]["node_db"].attribute?("path")
+    folders_to_create += node["rippled"]["config"]["node_db"]["path"]
+end
+
+if ["rippled"]["config"].attribute?("database_path")
+  folders_to_create += node["rippled"]["config"]["database_path"]
+end
+
+if ["rippled"]["config"].attribute?("debug_logfile")
+  folders_to_create += File.dirname(node["rippled"]["config"]["debug_logfile"])
+end
+
+folders_to_create.each do |folder|
   directory folder do
     owner user
     group group
@@ -109,46 +111,54 @@ debug_logfile_path = node[:rippled][:debug_logfile_folder] + '/debug.log'
   end
 end
 
-# upstart script
-template "/etc/init/rippled.conf" do
-  source "rippled.conf.erb"
-  mode "0644"
-  owner "root"
-  group "root"
-  variables({
-    :user => user,
-    :group => group,
-    :binary => node[:rippled][:binary],
-    :config => node[:rippled][:config],
-    :rock_db_folder => rock_db_folder,
-    :operational_db_folder => operational_db_folder,
-    :debug_logfile_path => debug_logfile_path
-  })
-end
-
-execute 'allow_to_bind_to_any_port' do
-  command "setcap 'cap_net_bind_service=+ep' " + node[:rippled][:binary]
-end
-
 # rippled config
-template node[:rippled][:config] do
+template node['rippled']['config_path'] do
   source "rippled.cfg.erb"
   mode "0600"
   owner user
   group group
-  helper(:cfg) { node[:rippled][:config] },
+  helper(:cfg) { node[:rippled][:config] }
+  notifies :restart, 'service[rippled]', :delayed
+end
+
+template "/etc/init.d/rippled" do
+  source "rippled-initd.sh.erb"
+  mode "0755"
+  owner "root"
+  group "root"
   variables({
-    :rock_db_folder => rock_db_folder,
-    :operational_db_folder => operational_db_folder,
-    :debug_logfile_path => debug_logfile_path,
-    :options        => node[:rippled]['options']
+    :name => node['rippled']['service_name'],
+    :user => user,
+    :group => group,
+    :pid_path => node['rippled']['pid_path'],
+    :binary_path => node['rippled']['binary_path'],
+    :config_path => node['rippled']['config_path'],
+    :cmd_params => node['rippled']['cmd_params']
   })
 end
 
-
-service 'rippled' do
-  provider Chef::Provider::Service::Upstart
-  supports :status => true, :start => true, :stop => true, :restart => true
-  action [:enable, :start]
+service node['rippled']['service_name'] do
+ supports :status => true, :start => true, :stop => true, :restart => true, :fetch => true, :uptime => true, :startconfig => true, :command => true, :test => true, :clean => true
+ action [:enable, :start]
 end
 
+# upstart script
+# template "/etc/init/rippled.conf" do
+#   source "rippled.conf.erb"
+#   mode "0644"
+#   owner "root"
+#   group "root"
+#   variables({
+#     :user => user,
+#     :group => group,
+#     :binary => node['rippled']['binary_path'],
+#     :config => node['rippled']['config_path']
+#   })
+#   notifies :restart, 'service[rippled]', :delayed
+# end
+# ##################### Run ####################
+# service 'rippled' do
+#   provider Chef::Provider::Service::Upstart
+#   supports :status => true, :start => true, :stop => true, :restart => true
+#   action [:enable, :start]
+# end
