@@ -1,7 +1,7 @@
 name 'rippled'
 maintainer 'Dmitry Grigorenko'
 maintainer_email 'grigorenko.d@gmail.com'
-version '0.2.1'
+version '0.2.2'
 license          'Apache v2.0'
 description      'Compiles, installs and configures rippled, a ripple network daemon'
 supports         'ubuntu', '>= 14.04'
