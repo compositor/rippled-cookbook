@@ -104,11 +104,6 @@ All other attributes are listed below.
     <td><code>--net</code></td>
   </tr>  
   <tr>
-    <td><code>node['rippled']['service_name']</code></td>
-    <td>Name for the daemon</td>
-    <td><code>rippled</code></td>
-  </tr>
-  <tr>
     <td><code>node['rippled']['config']</code></td>
     <td>Content of rippled.cfg</td>
     <td><i>identical to rippled-example.cfg</i></td>
@@ -152,8 +147,9 @@ All other attributes are listed below.
 
 ## Known issues
 - You need at least 16G memory to compile rippled. If memory is insufficient, g++ fails with an internal error. See `.kitchen.yml`
+<!--
 - Tests use nodejs from from ppa which conflicts with default ubuntu npm. You will not be able to apt-get npm (this will fail with an error)
-
+-->
 
 ## How to update this cookbook to the next rippled version
 * Copy `rippled/doc/rippled-example.cfg` to `materials/rippled.cfg`
@@ -172,6 +168,7 @@ Builds the rippled from source, configures, installs and runs.
 License and Author
 ==================
 
+|                      |                                             |
 |:---------------------|:--------------------------------------------|
 | **Author:**          | Dmitry Grigorenko (<grigorenko.d@gmail.com>)
 | **License:**         | Apache License, Version 2.0

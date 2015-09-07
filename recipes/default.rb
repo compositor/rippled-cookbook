@@ -38,10 +38,10 @@ apt_repository 'rippled' do
 end
 
 # https://wiki.ripple.com/Ubuntu_build_instructions : Add more recent node repository (tests do not work without it)
-apt_repository 'nodejs' do
- uri 'ppa:chris-lea/node.js'
- distribution node['lsb']['codename']
-end
+# apt_repository 'nodejs' do
+#  uri 'ppa:chris-lea/node.js'
+#  distribution node['lsb']['codename']
+# end
 
 node['rippled']['packages'].each do |pkg|
   package pkg
@@ -64,41 +64,35 @@ bash 'build_rippled' do
      EOH
 end
 
-
-ruby_block "copy_bin" do
-  block do
-    FileUtils.cp source_path + '/build/rippled', node['rippled']['binary_path']
-  end
-end
-
-execute 'allow_to_bind_to_any_port' do
-  command "setcap 'cap_net_bind_service=+ep' " + node['rippled']['binary_path']
-end
+# execute 'allow_to_bind_to_any_port' do
+#   command "setcap 'cap_net_bind_service=+ep' " + node['rippled']['binary_path']
+# end
 
 ########### Directories structure for data ##################
 
-dirs_to_create = []
-if (not node["rippled"]["config"]["node_db"].nil?) and node["rippled"]["config"]["node_db"].attribute?("path")
-    dirs_to_create.push(node["rippled"]["config"]["node_db"]["path"])
+directory node["rippled"]["config"]["node_db"]["path"] do
+  owner user
+  group group
+  mode '0755'
+  recursive true
 end
 
-if node["rippled"]["config"].attribute?("database_path")
-  dirs_to_create.push(node["rippled"]["config"]["database_path"])
+directory node["rippled"]["config"]["database_path"] do
+  owner user
+  group group
+  recursive true
 end
 
-if node["rippled"]["config"].attribute?("debug_logfile")
-  dirs_to_create.push(File.dirname(node["rippled"]["config"]["debug_logfile"]))
-end
-
-dirs_to_create.each do |dir|
-  directory dir do
+if node["rippled"]["config"].attribute?("debug_logfile") and not node["rippled"]["config"]["debug_logfile"].nil?
+  log_dir = File.dirname(node["rippled"]["config"]["debug_logfile"])
+  directory log_dir do
     owner user
     group group
     mode '0755'
     recursive true
-    action :create
   end
 end
+
 
 # rippled config
 
@@ -106,16 +100,16 @@ config_dir = File.dirname(node['rippled']['config_path'])
 
 ## TODO: the same trick for binary and other locations
 directory config_dir do
-  owner user
-  group group
+  owner "root"
+  group "root"
   recursive true
 end
 
 template node['rippled']['config_path'] do
   source "rippled.cfg.erb"
-  mode "0755"
-#  owner user
-#  group group
+  mode "0600"
+  owner user
+  group group
   helper(:cfg) { node[:rippled][:config] }
   notifies :restart, 'service[rippled]', :delayed
 end
@@ -126,7 +120,6 @@ template "/etc/init.d/rippled" do
   owner "root"
   group "root"
   variables({
-    :name => node['rippled']['service_name'],
     :user => user,
     :group => group,
     :pid_path => node['rippled']['pid_path'],
@@ -136,7 +129,29 @@ template "/etc/init.d/rippled" do
   })
 end
 
-service node['rippled']['service_name'] do
+
+
+# service shall be known here already
+# setcap to allow binding to any port
+built_binary = source_path + '/build/rippled'
+target_binary = node['rippled']['binary_path']
+bash "copy-rippled" do
+  cwd Chef::Config[:file_cache_path]
+  code <<-EOF
+    service rippled stop
+    sleep 2
+    cp #{built_binary}  #{target_binary}
+    setcap 'cap_net_bind_service=+ep'  #{target_binary}
+    service rippled start
+  EOF
+# ruby_block "copy_bin" do
+#   block do
+#     FileUtils.cp built_binary, target_binary
+#   end
+### TODO  if { "cmp #{built_binary} #{target_binary} >/dev/null 2>&1" }
+end
+
+service 'rippled' do
  supports :status => true, :start => true, :stop => true, :restart => true, :fetch => true, :uptime => true, :startconfig => true, :command => true, :test => true, :clean => true
  action [:enable, :start]
 end
@@ -146,12 +161,12 @@ bash 'test_rippled' do
     cwd source_path
     code <<-EOH
       ./build/rippled --unittest
-      npm install 
-      npm test
       EOH
-    notifies :start, 'service[rippled]', :immediately
     only_if { node["rippled"]["run_tests"] == 'true' } 
 end
+
+#      npm install 
+#      npm test
 
 
 # upstart script

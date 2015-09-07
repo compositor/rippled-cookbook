@@ -13,7 +13,8 @@
 # Description:       starts rippled using start-stop-daemon
 ### END INIT INFO
 
-NAME=<%= @name %>
+## inspired by https://github.com/fhd/init-script-template/blob/master/template
+NAME=`basename $0`
 USER="<%= @user %>"
 GROUP="<%= @group %>"
 PIDFILE=<%= @pid_path %>
@@ -82,9 +83,9 @@ start() {
 	echo -n "Starting daemon: "$NAME
 
         # Actually start rippled.
-    ## done by Chef # mkdir -p $LOGDIR
-    ## done by Chef # chown -R $USER:$GROUP $LOGDIR
-
+        ## done by Chef # mkdir -p $LOGDIR
+        ## done by Chef # chown -R $USER:$GROUP $LOGDIR
+    ## TODO ulimit -n 8192
 	start-stop-daemon --start --quiet --background -m --pidfile $PIDFILE \
             --exec $DAEMON --chuid $USER --group $GROUP -- $NET_OPTS
 	echo "."
@@ -100,8 +101,8 @@ case "$1" in
         ;;
 
     restart)
-	stop
-	start
+	$0 stop
+	$0 start
         ;;
 
     status)

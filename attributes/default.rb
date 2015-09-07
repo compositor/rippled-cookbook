@@ -1,9 +1,9 @@
 ############################### How to build ###########################
 
 # Packages needed to be installed to compile. This is for convenience and is not meant to be overwritten
-default['rippled']['packages'] = %w{g++ git scons exuberant-ctags pkg-config protobuf-compiler libprotobuf-dev libssl-dev python-software-properties libboost1.57-all-dev nodejs libcap2-bin}
+default['rippled']['packages'] = %w{g++ git scons exuberant-ctags pkg-config protobuf-compiler libprotobuf-dev libssl-dev python-software-properties libboost1.57-all-dev libcap2-bin}
 # ctags is a virtual package provided by 2 packages, you must explicitly select one to install
-# nodejs is for js tests
+# EXCLUDE nodejs is for js tests
 # libcap2-bin is used by the cookbook inself
 
 # repository that is cloned to be compiled
@@ -12,7 +12,6 @@ default['rippled']['git_revision'] = '0.29.0'
 default['rippled']['run_tests'] = 'true'
 
 ############################### Daemon ###########################
-default["rippled"]["service_name"] = "rippled"
 
 # User and group
 default["rippled"]["user"] = "rippled"
@@ -89,16 +88,3 @@ default["rippled"]["config"]["rpc_startup"] = '{ "command": "log_level", "severi
 default["rippled"]["config"]["ssl_verify"] = "1"
 
 ################################# End of the mere copy ########################################
-
-
-
-################################# Customization ###############################################
-#default["rippled"]["config"]["node_db"] = nil #["path"] = "/var/lib/rippled/db/rocksdb2"
-#default["rippled"]["config"]["database_path"] = "/var/lib/rippled/db2"
-#default["rippled"]["rippled"]["config"]["debug_logfile"] = "/var/log/rippled2"
-
-#TODO subfolder
-default["rippled"]["config_path"] = "/etc/rippled.cfg"
-#TODO true
-default['rippled']['run_tests'] = 'false'
-
