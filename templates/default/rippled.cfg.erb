@@ -7,14 +7,14 @@
 <%= "[#{key}]" %>
 <% if val.kind_of?(Array) %>
 <% val.each do |x| -%>
-<%= "#{x}" %>
+<%= x %>
 <% end -%>
 <% elsif val.kind_of?(Hash) %>
 <% val.each do |x,y| -%>
 <%= "#{x}=#{y}" %>
 <% end -%>
 <% else %>
-<%= "#{val}" %>
+<%= val %>
 <% end -%>
 <% end -%>
 <% end -%>

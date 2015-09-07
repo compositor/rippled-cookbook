@@ -110,7 +110,7 @@ template node['rippled']['config_path'] do
   mode "0600"
   owner user
   group group
-  helper(:cfg) { node[:rippled][:config] }
+  helper(:cfg) { node["rippled"]["config"] }
   notifies :restart, 'service[rippled]', :delayed
 end
 

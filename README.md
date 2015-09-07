@@ -11,18 +11,19 @@ The cookbook generally follows instructions published at [here](https://wiki.rip
 
 Please refer to rippled example configuration in sources for the full list of settings [souces](https://github.com/ripple/rippled/blob/master/doc/rippled-example.cfg). 
 
-All attributes within <code>node["rippled"]["config"]</code> will be converted to the content of `rippled.cfg`. A `key` from <code>node["rippled"]["config"][key]</code> becomes a section. A corresponding value might be a string (converts to a single string in the section), an array (each element goes as a string in the section), a map (converts to a list of key=value strings), `nil` (to suppress default attributes, the section is not created then). It is clear from examples:
+All attributes within `node["rippled"]["config"]` will be converted to the content of `rippled.cfg`. A `key` from `node["rippled"]["config"][key]` becomes a section. A corresponding value might be a string (converts to a single string in the section), an array (each element goes as a string in the section), a map (converts to a list of key=value strings), `nil` (to suppress default attributes, the section is not created then). It is clear from examples:
 
 An array
-```ruby
-node["rippled"]["config"]["server"] = ["port_rpc_admin_local", "port_peer", "port_ws_admin_local"]
-```
+
+    node["rippled"]["config"]["server"] = ["port_rpc_admin_local", "port_peer", "port_ws_admin_local"]
+
 becomes a section (mind `server` -> `[server]` transformation done by the recipe)
+
 ```
-[server]
-port_rpc_admin_local
-port_peer
-port_ws_admin_local
+    [server]
+    port_rpc_admin_local
+    port_peer
+    port_ws_admin_local
 ```
 
 A single value
@@ -80,60 +81,60 @@ All other attributes are listed below.
     <td>Default</td>
   </tr>
   <tr>
-    <td><code>node['rippled']['git_repository']</code></td>
+    <td>`node['rippled']['git_repository']`</td>
     <td>Git repository of rippled sources</td>
-    <td><code>https://github.com/ripple/rippled.git</code></td>
+    <td>`https://github.com/ripple/rippled.git`</td>
   </tr>
   <tr>
-    <td><code>node['rippled']['git_revision']</code></td>
+    <td>`node['rippled']['git_revision']`</td>
     <td>Git revision to check out</td>
-    <td><code>0.29.0</code></td>
+    <td>`0.29.0`</td>
   </tr>
   <tr>
-    <td><code>node['rippled']['run_tests']</code></td>
-    <td>Run internal tests, <code>true</code> or <code>false</code></td>
-    <td><code>true</code></td>
+    <td>`node['rippled']['run_tests']`</td>
+    <td>Run internal tests, `true` or `false`</td>
+    <td>`true`</td>
   </tr>
   <tr>
-    <td><code>node['rippled']['cmd_params']</code></td>
+    <td>`node['rippled']['cmd_params']`</td>
     <td>
     	Additional command line parameters to the deamon<br>
-    	Do not add <code>--conf</code> or <code>--fg</code> here, neigher add parameters that will cause the deamon to exit (like <code>--help</code>)
+    	Do not add `--conf` or `--fg` here, neigher add parameters that will cause the deamon to exit (like `--help`)
     </td>
-    <td><code>--net</code></td>
+    <td>`--net`</td>
   </tr>  
   <tr>
-    <td><code>node['rippled']['config']</code></td>
+    <td>`node['rippled']['config']`</td>
     <td>Content of rippled.cfg (described above)</td>
     <td><i>identical to rippled-example.cfg</i></td>
   </tr>  
   <tr>
-    <td><code>node['rippled']['user']</code></td>
+    <td>`node['rippled']['user']`</td>
     <td>User to run the daemon</td>
-    <td><code>rippled</code></td>
+    <td>`rippled`</td>
   </tr>
   <tr>
-    <td><code>node['rippled']['group']</code></td>
+    <td>`node['rippled']['group']`</td>
     <td>Group to create for the user</td>
-    <td><code>rippled</code></td>
+    <td>`rippled`</td>
   </tr>
   <tr>
-    <td><code>node['rippled']['pid_path']</code></td>
+    <td>`node['rippled']['pid_path']`</td>
     <td>Path to pid-file</td>
-    <td><code>/var/run/rippled.pid</code></td>
+    <td>`/var/run/rippled.pid`</td>
   </tr>
   <tr>
-    <td><code>node['rippled']['binary_path']</code></td>
+    <td>`node['rippled']['binary_path']`</td>
     <td>Where to install the executable</td>
-    <td><code>/usr/bin/rippled</code></td>
+    <td>`/usr/bin/rippled`</td>
   </tr>
   <tr>
-    <td><code>node['rippled']['config_path']</code></td>
+    <td>`node['rippled']['config_path']`</td>
     <td>Where to install the config file</td>
-    <td><code>/etc/rippled/rippled.cfg</code></td>
+    <td>`/etc/rippled/rippled.cfg`</td>
   </tr>
   <tr>
-    <td><code>node['rippled']['packages']</code></td>
+    <td>`node['rippled']['packages']`</td>
     <td>List of packages to install, do not edit</td>
     <td><i>cookbook implementation specific</i></td>
   </tr>
@@ -155,7 +156,7 @@ All other attributes are listed below.
 * Reflect any changes in `["rippled"]["config"]` attributes
 * Bump rippled version in `["rippled"]["git_revision"]` attribute and in this README
 * Bump cookbook version
-
+* `knife cookbook site share rippled Other -VV`
 
 Recipes
 =======
