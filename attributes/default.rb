@@ -8,7 +8,7 @@ default['rippled']['packages'] = %w{g++ git scons exuberant-ctags pkg-config pro
 
 # repository that is cloned to be compiled
 default['rippled']['git_repository'] = 'https://github.com/ripple/rippled.git'
-default['rippled']['git_revision'] = '0.29.0-hf1'
+default['rippled']['git_revision'] = '6a55f99edec9fa23aed532df33026fae54f3f9c5'
 default['rippled']['run_tests'] = 'true'
 
 ############################### Daemon ###########################

@@ -4,7 +4,7 @@
 #
 # Copyright (c) 2015 Dmitry Grigorenko, All Rights Reserved.
 
-# At a high level follows these instructions
+# At a high level the recipe follows these instructions
 # https://wiki.ripple.com/Rippled_build_instructions
 # https://wiki.ripple.com/Ubuntu_build_instructions
 # add-apt-repository -y ppa:boost-latest/ppa ; sudo apt-get update ; apt-get -y upgrade ; 
@@ -27,6 +27,8 @@ user user do
   shell '/bin/false' 
   gid group
 end
+
+############## Install pre-requirements and build  ######################
 
 # for boost. Rippled needs at least 1.57 and the latest at 'ppa:boost-latest/ppa' is 1.55
 apt_repository 'rippled' do
@@ -56,17 +58,12 @@ git source_path do
   action :sync
 end
 
-############## Build and configure ######################
 bash 'build_rippled' do
    cwd source_path
    code <<-EOH
      scons
      EOH
 end
-
-# execute 'allow_to_bind_to_any_port' do
-#   command "setcap 'cap_net_bind_service=+ep' " + node['rippled']['binary_path']
-# end
 
 ########### Directories structure for data ##################
 
@@ -127,8 +124,8 @@ template "/etc/init.d/rippled" do
     :config_path => node['rippled']['config_path'],
     :cmd_params => node['rippled']['cmd_params']
   })
+  notifies :restart, 'service[rippled]', :delayed
 end
-
 
 
 # service shall be known here already
@@ -144,19 +141,14 @@ bash "copy-rippled" do
     setcap 'cap_net_bind_service=+ep'  #{target_binary}
     service rippled start
   EOF
-# ruby_block "copy_bin" do
-#   block do
-#     FileUtils.cp built_binary, target_binary
-#   end
-if { "cmp #{built_binary} #{target_binary} >/dev/null 2>&1" }
+  not_if ('cmp ' + built_binary + ' ' + target_binary)
 end
 
 service 'rippled' do
- supports :status => true, :start => true, :stop => true, :restart => true, :fetch => true, :uptime => true, :startconfig => true, :command => true, :test => true, :clean => true
- action [:enable, :start]
+  supports :status => true, :start => true, :stop => true, :restart => true, :fetch => true, :uptime => true, :startconfig => true, :command => true, :test => true, :clean => true
+  action [:enable, :start]
 end
 
-#      service rippled stop
 bash 'test_rippled' do
     cwd source_path
     code <<-EOH
@@ -165,11 +157,17 @@ bash 'test_rippled' do
     only_if { node["rippled"]["run_tests"] == 'true' } 
 end
 
-#      npm install 
-#      npm test
+bash "check-service-is-running" do
+  code <<-EOF
+    ps ax | grep -v grep | grep rippled > /dev/null
+  EOF
+end
 
+# npm tests require to stop service and to install custom packages, do not implement them in the recipe for now
+# npm install 
+# npm test
 
-# upstart script
+# ##################### Upstart version just in case ####################
 # template "/etc/init/rippled.conf" do
 #   source "rippled.conf.erb"
 #   mode "0644"
@@ -183,7 +181,7 @@ end
 #   })
 #   notifies :restart, 'service[rippled]', :delayed
 # end
-# ##################### Run ####################
+
 # service 'rippled' do
 #   provider Chef::Provider::Service::Upstart
 #   supports :status => true, :start => true, :stop => true, :restart => true
