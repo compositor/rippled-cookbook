@@ -1,11 +1,10 @@
-# rippled Cookbook
+# Rippled Cookbook
 	
-This cookbook compiles and installs a [Ripple](https://ripple.com) node (version 0.29.0). At the time of writing Ripple Labs does not provide a precompiled package for the most recent release, therefore the only installation method available is via sources.
+This cookbook compiles and installs a [Ripple](https://ripple.com) node (version 0.29.0-hf1). At the time of writing Ripple Labs does not provide a precompiled package for the most recent release, therefore the only installation method available is via sources.
 
 The cookbook generally follows instructions published at [here](https://wiki.ripple.com/Ubuntu_build_instructions) with the following improvements:
 - allow to bind on privileged ports
-- use upstart for the daemon
-
+- customized `init.d` script based on Ripple Labs provided ubuntu package 
 
 ## Attributes
 
@@ -71,7 +70,7 @@ All other attributes are listed below.
 | **Attribute**                       | **Description**                                   | **Default**                                 |
 |:------------------------------------|:--------------------------------------------------|:--------------------------------------------|
 | `node['rippled']['git_repository']` | Git repository of rippled sources                 | `https://github.com/ripple/rippled.git`     |
-| `node['rippled']['git_revision']`   | Git revision to check out                         | `0.29.0`                                    |
+| `node['rippled']['git_revision']`   | Git revision to check out                         | `0.29.0-hf1`                                    |
 | `node['rippled']['run_tests']`      | Run internal tests, `true` or `false`             | `true`                                      |
 | `node['rippled']['cmd_params']`     | Additional command line parameters to the deamon* | `--net`                                     |
 | `node['rippled']['config']`         | Content of rippled.cfg (described above)          | _identical to rippled-example.cfg_          |
@@ -101,17 +100,17 @@ All other attributes are listed below.
 Recipes
 =======
 
-* rippled::default
+* `rippled::default`
 Builds the rippled from source, configures, installs and runs.
 
 
 License and Author
 ==================
 
-|                      |                                             |
-|:---------------------|:--------------------------------------------|
-| **Author:**          | Dmitry Grigorenko (<grigorenko.d@gmail.com>)
-| **License:**         | Apache License, Version 2.0
+|                      |                                              |
+|:---------------------|:---------------------------------------------|
+| **Author:**          | Dmitry Grigorenko (<grigorenko.d@gmail.com>) |
+| **License:**         | Apache License, Version 2.0                  |
 
 ```text
   Licensed under the Apache License, Version 2.0 (the "License");

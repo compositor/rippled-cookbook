@@ -148,7 +148,7 @@ bash "copy-rippled" do
 #   block do
 #     FileUtils.cp built_binary, target_binary
 #   end
-### TODO  if { "cmp #{built_binary} #{target_binary} >/dev/null 2>&1" }
+if { "cmp #{built_binary} #{target_binary} >/dev/null 2>&1" }
 end
 
 service 'rippled' do
