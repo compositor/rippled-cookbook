@@ -19,50 +19,37 @@ An array
 
 becomes a section (mind `server` -> `[server]` transformation done by the recipe)
 
-```
     [server]
     port_rpc_admin_local
     port_peer
     port_ws_admin_local
-```
 
 A single value
-```ruby
-node["rippled"]["config"]["node_size"] = "medium"
-```
+    node["rippled"]["config"]["node_size"] = "medium"
 becomes a section
-```
-[node_size]
-medium
-```
+    [node_size]
+  medium
 
 A map
-```ruby
-node["rippled"]["config"]["port_peer"] = {
-	"port" => "51235",
-	"ip" => "0.0.0.0",
-	"protocol" => "peer"
-}
-```
+    node["rippled"]["config"]["port_peer"] = {
+        "port" => "51235",
+            "ip" => "0.0.0.0",
+            "protocol" => "peer"
+    }
+
 becomes a section
-```
-[port_peer]
-port=51235
-ip=0.0.0.0
-protocol=peer
-```
+    [port_peer]
+    port=51235
+    ip=0.0.0.0
+    protocol=peer
 
 A `nil`
-```ruby
-node["rippled"]["config"]["port_ws_admin_local"] = nil
-```
+    node["rippled"]["config"]["port_ws_admin_local"] = nil
 removes `port_ws_admin_local` section
 
 Generally speaking, sections of `rippled.cfg` contain lines with either values or key-value pairs. The only mix is `[server]` and putting a key-value there is syntax shugar and thus can be easily avoided. If you still need a mix, you can use the following construction
 
-```ruby
-default["rippled"]["config"]["server"] = ["port_rpc_admin_local", "#port_ws_public", "ssl_key = /etc/ssl/private/server.key", "ssl_cert = /etc/ssl/certs/server.crt"]
-```
+    default["rippled"]["config"]["server"] = ["port_rpc_admin_local", "#port_ws_public", "ssl_key = /etc/ssl/private/server.key", "ssl_cert = /etc/ssl/certs/server.crt"]
 
 The default attributes merely repeat default rippled configuration from [souces](https://github.com/ripple/rippled/blob/master/doc/rippled-example.cfg). For better version tracking a copy of this example used to derive the attributes is saved in this cookbook at materials/rippled-example.cfg
 
@@ -74,72 +61,21 @@ If the following pathes are specified (explicitly or with default values), the r
 All other attributes are listed below.
 
 
-<table>
-  <tr>
-    <td>Attribute</td>
-    <td>Description</td>
-    <td>Default</td>
-  </tr>
-  <tr>
-    <td>`node['rippled']['git_repository']`</td>
-    <td>Git repository of rippled sources</td>
-    <td>`https://github.com/ripple/rippled.git`</td>
-  </tr>
-  <tr>
-    <td>`node['rippled']['git_revision']`</td>
-    <td>Git revision to check out</td>
-    <td>`0.29.0`</td>
-  </tr>
-  <tr>
-    <td>`node['rippled']['run_tests']`</td>
-    <td>Run internal tests, `true` or `false`</td>
-    <td>`true`</td>
-  </tr>
-  <tr>
-    <td>`node['rippled']['cmd_params']`</td>
-    <td>
-    	Additional command line parameters to the deamon<br>
+| Attribute                           | Description                                 | Default                                     |
+|:------------------------------------|:--------------------------------------------|:--------------------------------------------|
+| `node['rippled']['git_repository']` | Git repository of rippled sources           | `https://github.com/ripple/rippled.git`     |
+| `node['rippled']['git_revision']`   | Git revision to check out                   | `0.29.0`                                    |
+| `node['rippled']['run_tests']`      | Run internal tests, `true` or `false`       | `true`                                      |
+| `node['rippled']['cmd_params']`     | Additional command line parameters to the deamon<br>
     	Do not add `--conf` or `--fg` here, neigher add parameters that will cause the deamon to exit (like `--help`)
-    </td>
-    <td>`--net`</td>
-  </tr>  
-  <tr>
-    <td>`node['rippled']['config']`</td>
-    <td>Content of rippled.cfg (described above)</td>
-    <td><i>identical to rippled-example.cfg</i></td>
-  </tr>  
-  <tr>
-    <td>`node['rippled']['user']`</td>
-    <td>User to run the daemon</td>
-    <td>`rippled`</td>
-  </tr>
-  <tr>
-    <td>`node['rippled']['group']`</td>
-    <td>Group to create for the user</td>
-    <td>`rippled`</td>
-  </tr>
-  <tr>
-    <td>`node['rippled']['pid_path']`</td>
-    <td>Path to pid-file</td>
-    <td>`/var/run/rippled.pid`</td>
-  </tr>
-  <tr>
-    <td>`node['rippled']['binary_path']`</td>
-    <td>Where to install the executable</td>
-    <td>`/usr/bin/rippled`</td>
-  </tr>
-  <tr>
-    <td>`node['rippled']['config_path']`</td>
-    <td>Where to install the config file</td>
-    <td>`/etc/rippled/rippled.cfg`</td>
-  </tr>
-  <tr>
-    <td>`node['rippled']['packages']`</td>
-    <td>List of packages to install, do not edit</td>
-    <td><i>cookbook implementation specific</i></td>
-  </tr>
- </table>
-
+                                                                                    | `--net`                                     |
+| `node['rippled']['config']`         | Content of rippled.cfg (described above)    | <i>identical to rippled-example.cfg</i>     |
+| `node['rippled']['user']`           | User to run the daemon                      | `rippled`                                   |
+| `node['rippled']['group']`          | Group to create for the User                | `rippled`                                   |
+| `node['rippled']['pid_path']`       | Path to pid-file                            | `/var/run/rippled.pid`                      |
+| `node['rippled']['binary_path']`    | Where to install the executable             | `/usr/bin/rippled`                          |
+| `node['rippled']['config_path']`    | Where to install the config pid-file        | `/etc/rippled/rippled.cfg`                  |
+| `node['rippled']['packages']`       | List of packages to install, do not edit    | <i>cookbook implementation specific</i>     |
 
 ## Supported Platforms
 - Ubuntu 14.04
@@ -147,9 +83,6 @@ All other attributes are listed below.
 
 ## Known issues
 - You need at least 16G memory to compile rippled. If memory is insufficient, g++ fails with an internal error. See `.kitchen.yml`
-<!--
-- Tests use nodejs from from ppa which conflicts with default ubuntu npm. You will not be able to apt-get npm (this will fail with an error)
--->
 
 ## How to update this cookbook to the next rippled version
 * Copy `rippled/doc/rippled-example.cfg` to `materials/rippled.cfg`
