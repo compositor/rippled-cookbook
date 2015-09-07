@@ -62,6 +62,7 @@ Generally speaking, sections of `rippled.cfg` contain lines with either values o
 The default attributes merely repeat default rippled configuration from [souces](https://github.com/ripple/rippled/blob/master/doc/rippled-example.cfg). For better version tracking a copy of this example used to derive the attributes is saved in this cookbook at materials/rippled-example.cfg
 
 If the following pathes are specified (explicitly or with default values), the reciept will create corresponding folders for under `node['rippled']['user']` ownership:
+
 * `["rippled"]["config"]["node_db"]["path"]`
 * `["rippled"]["config"]["database_path"]`
 * `["rippled"]["rippled"]["config"]["debug_logfile"]`
@@ -69,22 +70,22 @@ If the following pathes are specified (explicitly or with default values), the r
 All other attributes are listed below.
 
 
-| **Attribute**                       | **Description**                                       | **Default**                                    |
-|:------------------------------------|:------------------------------------------------------|:-----------------------------------------------|
-| `node['rippled']['git_repository']` | Git repository of rippled sources                     | `https://github.com/ripple/rippled.git`        |
-| `node['rippled']['git_revision']`   | Git revision to check out                             | `6a55f99edec9fa23aed532df33026fae54f3f9c5`(*)) |
-| `node['rippled']['run_tests']`      | Run internal tests, `true` or `false`                 | `true`                                         |
-| `node['rippled']['cmd_params']`     | Additional command line parameters to the deamon (**) | `--net`                                        |
-| `node['rippled']['config']`         | Content of rippled.cfg (described above)              | _identical to rippled-example.cfg_             |
-| `node['rippled']['user']`           | User to run the daemon                                | `rippled`                                      |
-| `node['rippled']['group']`          | Group to create for the User                          | `rippled`                                      |
-| `node['rippled']['pid_path']`       | Path to pid-file                                      | `/var/run/rippled.pid`                         |
-| `node['rippled']['binary_path']`    | Where to install the executable                       | `/usr/bin/rippled`                             |
-| `node['rippled']['config_path']`    | Where to install the config pid-file                  | `/etc/rippled/rippled.cfg`                     |
-| `node['rippled']['packages']`       | List of packages to install, do not edit              | _cookbook implementation specific_             |
+| **Attribute**                       | **Description**                                         | **Default**                                    |
+|:------------------------------------|:--------------------------------------------------------|:-----------------------------------------------|
+| `node['rippled']['git_repository']` | Git repository of rippled sources                       | `https://github.com/ripple/rippled.git`        |
+| `node['rippled']['git_revision']`   | Git revision to check out                               | `6a55f99edec9fa23aed532df33026fae54f3f9c5`(\*) |
+| `node['rippled']['run_tests']`      | Run internal tests, `true` or `false`                   | `true`                                         |
+| `node['rippled']['cmd_params']`     | Additional command line parameters to the deamon (\*\*) | `--net`                                        |
+| `node['rippled']['config']`         | Content of rippled.cfg (described above)                | _identical to rippled-example.cfg_             |
+| `node['rippled']['user']`           | User to run the daemon                                  | `rippled`                                      |
+| `node['rippled']['group']`          | Group to create for the User                            | `rippled`                                      |
+| `node['rippled']['pid_path']`       | Path to pid-file                                        | `/var/run/rippled.pid`                         |
+| `node['rippled']['binary_path']`    | Where to install the executable                         | `/usr/bin/rippled`                             |
+| `node['rippled']['config_path']`    | Where to install the config pid-file                    | `/etc/rippled/rippled.cfg`                     |
+| `node['rippled']['packages']`       | List of packages to install, do not edit                | _cookbook implementation specific_             |
 
-(*) `6a55f99edec9fa23aed532df33026fae54f3f9c5` refers to 0.29.0-hf1 (usually there is a git tag for releases, but there is no any for this one)  
-(**) Do not add `--conf` or `--fg` here, neigher add parameters that will cause the deamon to exit (like `--help`)
+(\*) `6a55f99edec9fa23aed532df33026fae54f3f9c5` refers to 0.29.0-hf1 (usually there is a git tag for releases, but there is no any for this one)  
+(\*\*) Do not add `--conf` or `--fg` here, neigher add parameters that will cause the deamon to exit (like `--help`)
 
 ## Supported Platforms
 - Ubuntu 14.04
