@@ -82,7 +82,6 @@ All other attributes are listed below.
 | `node['rippled']['pid_path']`       | Path to pid-file                                        | `/var/run/rippled.pid`                         |
 | `node['rippled']['binary_path']`    | Where to install the executable                         | `/usr/bin/rippled`                             |
 | `node['rippled']['config_path']`    | Where to install the config pid-file                    | `/etc/rippled/rippled.cfg`                     |
-| `node['rippled']['packages']`       | List of packages to install, do not edit                | _cookbook implementation specific_             |
 
 (\*) `6a55f99edec9fa23aed532df33026fae54f3f9c5` refers to 0.29.0-hf1 (usually there is a git tag for releases, but there is no any for this one)  
 (\*\*) Do not add `--conf` or `--fg` here, neigher add parameters that will cause the deamon to exit (like `--help`)

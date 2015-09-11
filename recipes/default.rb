@@ -45,7 +45,12 @@ end
 #  distribution node['lsb']['codename']
 # end
 
-node['rippled']['packages'].each do |pkg|
+# Packages needed to be installed to compile. This is for convenience and is not meant to be overwritten
+packages = %w{g++ git scons exuberant-ctags pkg-config protobuf-compiler libprotobuf-dev libssl-dev python-software-properties libboost1.57-all-dev libcap2-bin}
+# ctags is a virtual package provided by 2 packages, you must explicitly select one to install
+# EXCLUDE nodejs is for js tests
+# libcap2-bin is used by the cookbook inself
+packages.each do |pkg|
   package pkg
 end
 
