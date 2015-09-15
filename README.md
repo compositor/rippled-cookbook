@@ -92,6 +92,7 @@ All other attributes are listed below.
 
 ## Known issues
 - You need at least 16G memory to compile rippled. If memory is insufficient, g++ fails with an internal error. See `.kitchen.yml`
+- `service status rippled` fails from non-privileged user because cannot read the config file. The file might have validation keys and thus restricted on purpose. If this issue bothers anybody, permissions shall be made configurable via chef attribures.
 
 ## How to update this cookbook to the next rippled version
 
