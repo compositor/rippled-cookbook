@@ -94,15 +94,17 @@ All other attributes are listed below.
 - You need at least 16G memory to compile rippled. If memory is insufficient, g++ fails with an internal error. See `.kitchen.yml`
 - `service status rippled` fails from non-privileged user because cannot read the config file. The file might have validation keys and thus restricted on purpose. If this issue bothers anybody, permissions shall be made configurable via chef attribures.
 
-## How to update this cookbook to the next rippled version
+## rippled versions, cookbook versioning
 
+This cookbook follows [semantic versioning](http://semver.org/).
+
+Here is how to update the cookbook for a newer rippled version.
 * Copy `rippled/doc/rippled-example.cfg` to `materials/rippled.cfg`
 * Reflect any changes in `["rippled"]["config"]` attributes
 * Bump rippled version in `["rippled"]["git_revision"]` attribute and in this README
-* Bump cookbook version
+* Bump cookbook version (since we alter the default value for `git_revision`, it is a breaking change)
 * `knife cookbook site share rippled Other -VV`
 
-This cookbook follows [semantic versioning](http://semver.org/).
 
 ## Recipes
 
