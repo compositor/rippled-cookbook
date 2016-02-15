@@ -2,7 +2,7 @@
 
 ## Overview
 
-This cookbook compiles and installs a [Ripple](https://ripple.com) node (version 0.30.0-hf1). At the time of writing Ripple Labs does not provide a precompiled package for the most recent release, therefore the only installation method available is via sources.
+This cookbook compiles and installs a [Ripple](https://ripple.com) node (version 0.30.1-hf1). At the time of writing Ripple Labs does not provide a precompiled package for the most recent release, therefore the only installation method available is via sources.
 
 The cookbook generally follows instructions published at [here](https://wiki.ripple.com/Ubuntu_build_instructions) with the following improvements:
 - allow to bind on privileged ports
@@ -73,7 +73,7 @@ All other attributes are listed below.
 | **Attribute**                       | **Description**                                         | **Default**                                    |
 |:------------------------------------|:--------------------------------------------------------|:-----------------------------------------------|
 | `node['rippled']['git_repository']` | Git repository of rippled sources                       | `https://github.com/ripple/rippled.git`        |
-| `node['rippled']['git_revision']`   | Git revision to check out                               | `0.30.0-hf1` |
+| `node['rippled']['git_revision']`   | Git revision to check out                               | `0.30.1-hf1` |
 | `node['rippled']['run_tests']`      | Run internal tests, `true` or `false`                   | `true`                                         |
 | `node['rippled']['cmd_params']`     | Additional command line parameters to the daemon (\*) | `--net`                                        |
 | `node['rippled']['config']`         | Content of rippled.cfg (described above)                | _identical to rippled-example.cfg_             |
@@ -91,20 +91,21 @@ All other attributes are listed below.
 
 ## Known issues
 - You need at least 16G memory to compile rippled. If memory is insufficient, g++ fails with an internal error. See `.kitchen.yml`
-- `service status rippled` fails from non-privileged user because cannot read the config file. The file might have validation keys and thus restricted on purpose. If this issue bothers anybody, permissions shall be made configurable via chef attribures.
+- `service status rippled` fails from non-privileged user because cannot read the config file. The file might have validation keys and thus restricted on purpose. If this issue bothers anybody, permissions shall be made configurable via chef attributes.
 
 ## rippled versions, cookbook versioning
 
 This cookbook follows [semantic versioning](http://semver.org/).
 
 Here is how to update the cookbook for a newer rippled version.
-* Copy `rippled/doc/rippled-example.cfg` to `materials/rippled.cfg`
-* Reflect any changes in `["rippled"]["config"]` attributes
-* Bump rippled version in `["rippled"]["git_revision"]` attribute and in this README
-* Bump cookbook version (since we alter the default value for `git_revision`, it is a breaking change)
-* Update changelog
-* `knife cookbook site share rippled Other -VV`
-
+- Copy `rippled/doc/rippled-example.cfg` to `materials/rippled.cfg`
+- If any any default configs are changed, added or removed, reflect it in  `["rippled"]["config"]` attributes
+- Bump rippled version in `["rippled"]["git_revision"]` attribute and in this README
+- Bump cookbook version (since we alter the default value for `git_revision`, it is a breaking change)
+- Update changelog
+- Build locally `kitchen converge` (clean `kitchen destroy`)
+- Publish `knife cookbook site share rippled Other -VV`
+- Commit and tag in github
 
 ## Recipes
 
@@ -134,6 +135,12 @@ Builds the rippled from source, configures, installs and runs.
 ```
 
 ## Changelog
+
+### v0.4.0, February 14, 2015
+
+* Bump rippled version to 0.30.1-hf1
+* Move to g++-5
+* Fix documentation
 
 ### v0.3.0, November 27, 2015
 

@@ -1,7 +1,7 @@
 ---
 driver:
   name: vagrant
-  customize: 
+  customize:
    memory: 18432
 
 provisioner:

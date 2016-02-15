@@ -7,8 +7,8 @@
 # At a high level the recipe follows these instructions
 # https://wiki.ripple.com/Rippled_build_instructions
 # https://wiki.ripple.com/Ubuntu_build_instructions
-# add-apt-repository -y ppa:boost-latest/ppa ; sudo apt-get update ; apt-get -y upgrade ; 
-# sudo apt-get -y install git scons ctags pkg-config protobuf-compiler libprotobuf-dev libssl-dev python-software-properties libboost1.57-all-dev nodejs; 
+# add-apt-repository -y ppa:boost-latest/ppa ; sudo apt-get update ; apt-get -y upgrade ;
+# sudo apt-get -y install git scons ctags pkg-config protobuf-compiler libprotobuf-dev libssl-dev python-software-properties libboost1.57-all-dev nodejs;
 # git clone https://github.com/ripple/rippled.git ; cd rippled/ ; git checkout master ; scons ; ./build/rippled --unittest ; sudo apt-get install npm; npm test
 
 include_recipe 'apt::default'
@@ -24,7 +24,7 @@ user user do
   action :create
   comment 'rippled system user'
   system true
-  shell '/bin/false' 
+  shell '/bin/false'
   gid group
 end
 
@@ -39,6 +39,12 @@ apt_repository 'rippled' do
   arch 'amd64'
 end
 
+# Rippled requires gcc 5.1 or higher
+apt_repository 'gcc' do
+  uri 'ppa:ubuntu-toolchain-r/test'
+  distribution node['lsb']['codename']
+end
+
 # https://wiki.ripple.com/Ubuntu_build_instructions : Add more recent node repository (tests do not work without it)
 # apt_repository 'nodejs' do
 #  uri 'ppa:chris-lea/node.js'
@@ -46,12 +52,18 @@ end
 # end
 
 # Packages needed to be installed to compile. This is for convenience and is not meant to be overwritten
-packages = %w{g++ git scons exuberant-ctags pkg-config protobuf-compiler libprotobuf-dev libssl-dev python-software-properties libboost1.57-all-dev libcap2-bin}
+packages = %w{g++-5 git scons exuberant-ctags pkg-config protobuf-compiler libprotobuf-dev libssl-dev python-software-properties libboost1.57-all-dev libcap2-bin}
 # ctags is a virtual package provided by 2 packages, you must explicitly select one to install
 # EXCLUDE nodejs is for js tests
 # libcap2-bin is used by the cookbook inself
 packages.each do |pkg|
   package pkg
+end
+
+bash 'gcc_version' do
+  code <<-EOH
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 60 --slave /usr/bin/g++ g++ /usr/bin/g++-5
+  EOH
 end
 
 # The path maps to /tmp/kitchen/cache/rippled
@@ -159,7 +171,7 @@ bash 'test_rippled' do
     code <<-EOH
       ./build/rippled --unittest
       EOH
-    only_if { node["rippled"]["run_tests"] == 'true' } 
+    only_if { node["rippled"]["run_tests"] == 'true' }
 end
 
 bash "check-service-is-running" do
@@ -169,7 +181,7 @@ bash "check-service-is-running" do
 end
 
 # npm tests require to stop service and to install custom packages, do not implement them in the recipe for now
-# npm install 
+# npm install
 # npm test
 
 # ##################### Upstart version just in case ####################
