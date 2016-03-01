@@ -2,7 +2,7 @@
 
 ## Overview
 
-This cookbook compiles and installs a [Ripple](https://ripple.com) node (version 0.30.1-hf1). At the time of writing Ripple Labs does not provide a precompiled package for the most recent release, therefore the only installation method available is via sources.
+This cookbook compiles and installs a [Ripple](https://ripple.com) node (version 0.30.1-hf2). At the time of writing Ripple Labs does not provide a precompiled package for the most recent release, therefore the only installation method available is via sources.
 
 The cookbook generally follows instructions published at [here](https://wiki.ripple.com/Ubuntu_build_instructions) with the following improvements:
 - allow to bind on privileged ports
@@ -73,7 +73,7 @@ All other attributes are listed below.
 | **Attribute**                       | **Description**                                         | **Default**                                    |
 |:------------------------------------|:--------------------------------------------------------|:-----------------------------------------------|
 | `node['rippled']['git_repository']` | Git repository of rippled sources                       | `https://github.com/ripple/rippled.git`        |
-| `node['rippled']['git_revision']`   | Git revision to check out                               | `0.30.1-hf1` |
+| `node['rippled']['git_revision']`   | Git revision to check out                               | `0.30.1-hf2` |
 | `node['rippled']['run_tests']`      | Run internal tests, `true` or `false`                   | `true`                                         |
 | `node['rippled']['cmd_params']`     | Additional command line parameters to the daemon (\*) | `--net`                                        |
 | `node['rippled']['config']`         | Content of rippled.cfg (described above)                | _identical to rippled-example.cfg_             |
@@ -136,7 +136,11 @@ Builds the rippled from source, configures, installs and runs.
 
 ## Changelog
 
-### v0.4.0, February 14, 2015
+### v0.5.0, February 29, 2016
+
+* Bump rippled version to 0.30.1-hf2
+
+### v0.4.0, February 14, 2016
 
 * Bump rippled version to 0.30.1-hf1
 * Move to g++-5

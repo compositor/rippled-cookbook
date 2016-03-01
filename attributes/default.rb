@@ -2,7 +2,7 @@
 
 # repository that is cloned to be compiled
 default['rippled']['git_repository'] = 'https://github.com/ripple/rippled.git'
-default['rippled']['git_revision'] = '0.30.1-hf1'
+default['rippled']['git_revision'] = '0.30.1-hf2'
 default['rippled']['run_tests'] = 'true'
 
 ############################### Daemon ###########################
