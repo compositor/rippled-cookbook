@@ -1,5 +1,9 @@
 # Rippled Cookbook
 
+## End of maintenance
+
+Ripple Labs promotes CentOS and RedHat Enterpise as platforms for production servers (read [here](https://ripple.com/build/rippled-setup/)). This cookbook was meant for Ubuntu. Due to lack of interest support of this cookbook will be stopped any time. Please note that the cookbook is pretty generic to work properly with further releases. Please find details on proper maintenance below.
+
 ## Overview
 
 This cookbook compiles and installs a [Ripple](https://ripple.com) node (version 0.30.1-hf2). At the time of writing Ripple Labs does not provide a precompiled package for the most recent release, therefore the only installation method available is via sources.
@@ -7,6 +11,8 @@ This cookbook compiles and installs a [Ripple](https://ripple.com) node (version
 The cookbook generally follows instructions published at [here](https://wiki.ripple.com/Ubuntu_build_instructions) with the following improvements:
 - allow to bind on privileged ports
 - customized `init.d` script based on one from Ripple Labs provided ubuntu package
+
+Find the most resent `rippled` release information at their [Github repository](https://github.com/ripple/rippled/releases).
 
 ## Attributes
 
@@ -135,6 +141,8 @@ Builds the rippled from source, configures, installs and runs.
 ```
 
 ## Changelog
+
+* Add "End of maintenance" section.
 
 ### v0.5.0, February 29, 2016
 
